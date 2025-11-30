@@ -449,7 +449,7 @@ func (r *Repository) GetStats(ctx context.Context) (*models.Stats, error) {
 	return stats, nil
 }
 
-// Вспомогательные функции
+// Вспомогательные функции.
 func (r *Repository) deactivateTeamUsers(ctx context.Context, tx pgx.Tx, teamName string) ([]string, error) {
 	rows, err := tx.Query(ctx,
 		"UPDATE users SET is_active=false WHERE team_name=$1 AND is_active=true RETURNING user_id",

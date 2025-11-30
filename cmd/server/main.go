@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"prreviewer/internal/handlers"
+	"prreviewer/internal/pkg"
 	"prreviewer/internal/repo"
 	"prreviewer/internal/service"
 )
@@ -31,7 +31,7 @@ const (
 	serverIdleTimeout  = 60 * time.Second
 )
 
-var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+var rng = pkg.NewLockedRand()
 
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)

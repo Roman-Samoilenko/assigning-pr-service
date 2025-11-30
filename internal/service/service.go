@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
 
 	"prreviewer/internal/models"
 	"prreviewer/internal/repo"
@@ -22,12 +21,40 @@ var (
 	ErrNoCandidate    = errors.New("no suitable replacement found")
 )
 
-type Service struct {
-	repo *repo.Repository
-	rng  *rand.Rand
+type Repository interface {
+	CreatePR(ctx context.Context, pr models.PR) error
+	CreateTeam(ctx context.Context, team models.Team) error
+	DeactivateTeamAndReassignPRs(
+		ctx context.Context,
+		teamName string,
+		rng interface{ Intn(int) int },
+	) (*repo.DeactivationResult, error)
+	DeactivateTeamMembers(ctx context.Context, teamName string) ([]string, error)
+	GetActiveTeamMembers(ctx context.Context, teamName string, excludeIDs []string) ([]string, error)
+	GetOpenPRsByReviewers(ctx context.Context, reviewerIDs []string) ([]string, error)
+	GetPR(ctx context.Context, prID string) (*models.PR, error)
+	GetStats(ctx context.Context) (*models.Stats, error)
+	GetTeam(ctx context.Context, name string) (*models.Team, error)
+	GetUser(ctx context.Context, uid string) (*models.User, error)
+	GetUserReviews(ctx context.Context, uid string) ([]models.PRShort, error)
+	MergePR(ctx context.Context, prID string) error
+	PRExists(ctx context.Context, prID string) (bool, error)
+	ReplaceReviewer(ctx context.Context, prID string, oldReviewerID string, newReviewerID string) error
+	TeamExists(ctx context.Context, name string) (bool, error)
+	UpdateUserActiveStatus(ctx context.Context, uid string, active bool) error
 }
 
-func New(r *repo.Repository, rng *rand.Rand) *Service {
+type Randomizer interface {
+	Intn(n int) int
+	Shuffle(n int, swap func(i, j int))
+}
+
+type Service struct {
+	repo Repository
+	rng  Randomizer
+}
+
+func New(r Repository, rng Randomizer) *Service {
 	return &Service{repo: r, rng: rng}
 }
 
@@ -211,7 +238,6 @@ func (s *Service) pickRandomReviewers(candidates []string, n int) []string {
 
 	return shuffled[:n]
 }
-
 func contains(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {

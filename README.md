@@ -202,6 +202,7 @@ output:
 │   ├── apierr/errors.go         # типы ошибок API
 │   ├── handlers/handlers.go     # HTTP handlers
 │   ├── models/models.go         # модели данных
+│   ├── pkg/random.go            # math/rand + sync.Mutex
 │   ├── repo/repo.go             # слой БД
 │   └── service/service.go       # бизнес-логика
 ├── migrations/                  # SQL миграции  
