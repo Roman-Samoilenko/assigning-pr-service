@@ -432,9 +432,3 @@ stateDiagram-v2
 | Migrations | golang-migrate | v4.16.2 |
 | Linter | golangci-lint | 2.6.2 |
 | Container | Docker + Docker Compose | - |
-
----
-
-## Лицензия
-
-MIT
